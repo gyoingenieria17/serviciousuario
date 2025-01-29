@@ -1,0 +1,22 @@
+version: "3.9"
+
+networks:
+  app-network:
+    driver: bridge
+    
+services:
+  app:
+    image: serviciousuario:1.0 # Nombre de tu imagen
+    build:
+      context: . # Construye la imagen usando el Dockerfile en el directorio actual
+    ports:
+      - "8081:8081" # Mapea el puerto 8081 del contenedor al host
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://host.docker.internal:3306/dblucas9
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: ""
+      SPRING_DATASOURCE_DRIVER-CLASS-NAME: com.mysql.cj.jdbc.Driver
+      SPRING_JPA_SHOW_SQL: "true"
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+    restart: always
+    command: ["sh", "-c", "sleep 10 && java -jar /app_serviciousuario.jar"]

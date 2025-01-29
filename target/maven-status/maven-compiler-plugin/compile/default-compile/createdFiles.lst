@@ -1,0 +1,8 @@
+com\example\serviciousuario\service\UsuarioService.class
+com\example\serviciousuario\config\SecurityConfig.class
+com\example\serviciousuario\repository\RolRepository.class
+com\example\serviciousuario\entity\Usuario.class
+com\example\serviciousuario\entity\Rol.class
+com\example\serviciousuario\controller\UsuarioController.class
+com\example\serviciousuario\repository\UsuarioRepository.class
+com\example\serviciousuario\ServiciousuarioApplication.class

@@ -13,6 +13,8 @@ import com.example.serviciousuario.service.UsuarioService;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+
+import com.example.serviciousuario.dto.AuthResponse;
 import com.example.serviciousuario.entity.Usuario;
 
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -48,13 +50,10 @@ public class UsuarioController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody Usuario usuarioRequest) {
-        if (usuarioRequest.getUsuario() == null || usuarioRequest.getClave() == null) {
-            return ResponseEntity.badRequest().body("Usuario y clave no pueden estar vacíos"); // Código 400
-        }
+    public ResponseEntity<?> login(@RequestBody Usuario usuario) {
         try {
-            Optional<Usuario> usuarioOpt = usuarioService.getUsuario(usuarioRequest.getUsuario(), usuarioRequest.getClave());
-            return ResponseEntity.ok(usuarioOpt.get());
+            AuthResponse authResponse = usuarioService.getUsuario(usuario.getUsuario(), usuario.getClave());
+            return ResponseEntity.ok(authResponse);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }

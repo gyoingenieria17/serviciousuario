@@ -1,4 +1,6 @@
+com\example\serviciousuario\dto\AuthResponse.class
 com\example\serviciousuario\service\UsuarioService.class
+com\example\serviciousuario\util\JwtUtil.class
 com\example\serviciousuario\config\SecurityConfig.class
 com\example\serviciousuario\repository\RolRepository.class
 com\example\serviciousuario\entity\Usuario.class

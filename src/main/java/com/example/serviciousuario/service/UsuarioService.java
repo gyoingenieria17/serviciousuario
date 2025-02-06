@@ -7,10 +7,13 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.example.serviciousuario.dto.AuthResponse;
 import com.example.serviciousuario.entity.Rol;
 import com.example.serviciousuario.entity.Usuario;
 import com.example.serviciousuario.repository.RolRepository;
 import com.example.serviciousuario.repository.UsuarioRepository;
+import com.example.serviciousuario.util.JwtUtil;
+
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
@@ -29,30 +32,37 @@ public class UsuarioService {
     @Autowired
     RolRepository rolRepository;
 
+    @Autowired
+    JwtUtil jwtUtil;
+
     public List<Usuario> getUsuario() {
         return usuarioRepository.findAll();
     }
 
-    public Optional<Usuario> getUsuario(String usuario, String clave) {
+    public AuthResponse getUsuario(String usuario, String clave) {
         Optional<Usuario> usuarioOpt = usuarioRepository.findByUsuario(usuario);
-    
+
         if (usuarioOpt.isEmpty()) {
             throw new IllegalArgumentException("Usuario o clave incorrectos");
         }
-    
+
         Usuario usuarioEncontrado = usuarioOpt.get();
-    
+
         // Verifica la contraseña
         if (!passwordEncoder.matches(clave, usuarioEncontrado.getClave())) {
             throw new IllegalArgumentException("Usuario o clave incorrectos");
         }
-    
+
         // Verifica si el usuario está inactivo (estado = false o 0)
         if (!usuarioEncontrado.getEstado()) {
             throw new IllegalArgumentException("El usuario está inactivo");
         }
-    
-        return usuarioOpt;
+
+        // Generar token JWT con el rol del usuario
+        String token = jwtUtil.generateToken(usuarioEncontrado.getUsuario(), usuarioEncontrado.getRol().getNombre());
+
+        // Crear y devolver la respuesta de autenticación
+        return new AuthResponse(token, usuarioEncontrado.getUsuario(), usuarioEncontrado.getRol().getNombre());
     }
     
     public Usuario insertarUsuario(Usuario usuario) {
@@ -60,41 +70,31 @@ public class UsuarioService {
         if (usuario.getUsuario() == null || usuario.getUsuario().trim().isEmpty()) {
             throw new IllegalArgumentException("El nombre de usuario es obligatorio.");
         }
-    
-        // Validar si ya existe un usuario con el mismo nombre y estado activo
-        Optional<Usuario> usuarioExistente = usuarioRepository.findByUsuarioAndEstado(usuario.getUsuario(), true);
-    
-        if (usuario.getEstado() == Boolean.TRUE && usuarioExistente.isPresent()) {
-            throw new IllegalArgumentException("El usuario ya existe con estado activo (1).");
+
+        // Validar si ya existe un usuario con el mismo nombre
+        Optional<Usuario> usuarioExistente = usuarioRepository.findByUsuario(usuario.getUsuario());
+
+        if (usuarioExistente.isPresent()) {
+            throw new IllegalArgumentException("El usuario ya existe.");
         }
-    
+
         // Validar que el rol no sea nulo
         if (usuario.getRol() == null || usuario.getRol().getId() == null) {
             throw new IllegalArgumentException("El rol del usuario es obligatorio.");
         }
-    
+
         log.info("Buscando rol con ID: {}", usuario.getRol().getId());
         // Buscar el rol en la base de datos
         Rol rol = rolRepository.findById(Long.valueOf(usuario.getRol().getId()))
         .orElseThrow(() -> new IllegalArgumentException("Rol no encontrado con el ID: " + usuario.getRol().getId()));
 
         usuario.setRol(rol);
-    
+
         // Cifrar la contraseña antes de guardar
         if (usuario.getClave() != null) {
             usuario.setClave(passwordEncoder.encode(usuario.getClave()));
         }
-    
-        // Establecer el estado del usuario a true si no se especifica
-        if (usuario.getEstado() == null) {
-            usuario.setEstado(true);
-        }
-    
-        // Establecer fechas de creación y actualización
-        usuario.setFechaCreacion(LocalDateTime.now());
-        usuario.setFechaActualizacion(LocalDateTime.now());
-    
-        // Guardar el usuario
+
         return usuarioRepository.save(usuario);
     }
     

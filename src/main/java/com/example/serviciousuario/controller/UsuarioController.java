@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.serviciousuario.service.UsuarioService;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 import com.example.serviciousuario.dto.AuthResponse;
 import com.example.serviciousuario.entity.Usuario;

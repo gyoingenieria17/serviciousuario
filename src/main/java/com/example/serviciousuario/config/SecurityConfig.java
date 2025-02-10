@@ -24,7 +24,7 @@ public class SecurityConfig {
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))  // Configuración de CORS
             .csrf(csrf -> csrf.disable())  // Deshabilitar CSRF (solo para pruebas o APIs públicas)
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers(HttpMethod.GET, "/api/v1/usuario/**").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.GET, "/api/v1/usuario/**").permitAll() //.hasRole("ADMIN")
                 .requestMatchers(HttpMethod.POST, "/api/v1/usuario/**").permitAll()
                 .requestMatchers(HttpMethod.PUT, "/api/v1/usuario/**").permitAll()
                 .requestMatchers(HttpMethod.DELETE, "/api/v1/usuario/**").permitAll()

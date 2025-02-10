@@ -13,7 +13,6 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.security.config.Customizer;
 
 import java.util.Arrays;
-import java.util.List;
 
 @Configuration
 @EnableWebSecurity
@@ -23,7 +22,7 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))  // Configuración de CORS
-            .csrf(csrf -> csrf.disable())  // Deshabilitar CSRF (solo para pruebas)
+            .csrf(csrf -> csrf.disable())  // Deshabilitar CSRF (solo para pruebas o APIs públicas)
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers(HttpMethod.GET, "/api/v1/usuario/**").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.POST, "/api/v1/usuario/**").permitAll()
@@ -39,9 +38,8 @@ public class SecurityConfig {
     @Bean
     public UrlBasedCorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowCredentials(true);  // Permitir cookies y credenciales
-        //config.setAllowedOrigins(List.of("*"));
-        config.setAllowedOriginPatterns(Arrays.asList("*"));  // Permitir cualquier IP o dominio
+        config.setAllowCredentials(true);  // Permitir credenciales (cookies, etc.)
+        config.setAllowedOriginPatterns(Arrays.asList("*"));  // Permitir tu IP pública
         config.addAllowedHeader("*");  // Permitir todos los headers
         config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));  // Métodos permitidos
 
